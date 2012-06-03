@@ -39,7 +39,7 @@
 typedef Eigen::Matrix<double,1,4> covariateVector4d_t;
 typedef int outcome_t; 
 typedef Eigen::Matrix<double,1,4> scoreVector4d_t;
-typedef Eigen::Matrix<double,4,4> hessianMatrix44d_t;
+typedef Eigen::Matrix<double,4,4> SquareMatrix4d_t;
 
 //======================================================
 // namespace declarations
@@ -57,18 +57,21 @@ class Logit
     //void printObservation(int obsNum); // takes observation number as argument by value
     void printNumObs();
     void printAttributes();
-
+    void convertSplit(string observationString);
     //int numObservations
 
   private:
     // member functions
     int getNumObservations(char*);
+    double convertStringToDouble(const string s);
+    //void convertSplit(int& y, double* x, string s);   
     // member data
     int numObservations;
     int numCovariates;
     vector<int> covariates;
     vector<int> outcomes;
-
+   
+  
   }; // end of Logit class definition
 
 #endif

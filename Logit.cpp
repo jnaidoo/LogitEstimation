@@ -2,8 +2,6 @@
 
 #include "Logit.hpp"
 
-
-
 using namespace std;
 using namespace boost;
 
@@ -20,6 +18,21 @@ Logit::Logit(char* filename) // have to pass character array with filename to in
   covariates.reserve(numObservations);
   outcomes.reserve(numObservations);
 
+  ifstream data;
+  if (data.is_open())
+  {
+    while ( data.good() )
+    {
+      getline (data,line);
+      // write two functions to get y and x separately
+      outcomes.push_back();
+      covariates.push_back();
+    }
+    myfile.close();
+  }
+  
+  //firstObs_outcome = get
+  //firstObs_covariates = 
 } // end constructor definition
 
 Logit::~Logit()
@@ -81,5 +94,27 @@ int Logit::getNumObservations(char* filename)
   return lines;   
 } // end getNumObservations
 
+void Logit::convertSplit(string observationString) //int& y, covariateVector4d_t& x,
+{
+  vector<string> splitStringList; 
+  split(splitStringList, observationString, is_any_of(" ,")); // tokenize s
+  vector<double> tmpDoubleVector;
+  tmpDoubleVector.reserve(splitStringList.size());
+
+    for(vector<string>::const_iterator p = splitStringList.begin(); p < splitStringList.end(); ++p){
+       // cout << convertStringToDouble(*p)+1 << endl;
+        tmpDoubleVector.push_back(convertStringToDouble(*p));
+    } // end for
+} // end convertSplit
+
+// private method to convert string --> double
+double Logit::convertStringToDouble(const string s){
+   try{
+      return boost::lexical_cast<double>(s);
+    }
+    catch(bad_lexical_cast &){
+      return -999; 
+    }
+} // end of convertStringToDouble
 
 
