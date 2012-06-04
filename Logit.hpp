@@ -33,7 +33,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <Eigen/Dense>
-
+//#include <cctype>
+//#include <cstdlib>
 //======================================================
 // typedefs
 typedef Eigen::Matrix<double,1,4> covariateVector4d_t;
@@ -51,27 +52,22 @@ class Logit
   public:
     Logit(char* filename);  //ctor
     ~Logit(); // dtor
-
-    //void readInData(Logit thisLogit&);
-    //void printAttributes(Logit thisLogit&); // output N, K, first observation
-    //void printObservation(int obsNum); // takes observation number as argument by value
-    void printNumObs();
-    void printAttributes();
-    void convertSplit(string observationString);
-    //int numObservations
+    void printAttributes(); // prints out numObservations, properties of first 5 obs
 
   private:
-    // member functions
+    //** member functions
     int getNumObservations(char*);
     double convertStringToDouble(const string s);
-    //void convertSplit(int& y, double* x, string s);   
-    // member data
+    int getOutcomeFromString(const string s);
+    // convertSplit takes a line and enters y and x data into its arguments
+    void convertSplit(string observationString, int& response, covariateVector4d_t& regressors);
+    
+    //** member data
     int numObservations;
-    int numCovariates;
-    vector<int> covariates;
+    //int numCovariates; --> redundant because I don't know how to pass a variable-dim argument to likelihood yet
     vector<int> outcomes;
-   
-  
+    vector<covariateVector4d_t> covariates;
+     
   }; // end of Logit class definition
 
 #endif

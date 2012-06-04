@@ -18,21 +18,26 @@ Logit::Logit(char* filename) // have to pass character array with filename to in
   covariates.reserve(numObservations);
   outcomes.reserve(numObservations);
 
+  //for(int ix = 0; ix<numObservations); ++ix){
   ifstream data;
+  data.open(filename, ios::in);
   if (data.is_open())
   {
-    while ( data.good() )
-    {
-      getline (data,line);
-      // write two functions to get y and x separately
-      outcomes.push_back();
-      covariates.push_back();
-    }
-    myfile.close();
+    string line;
+    int ix = 0; 
+      while ( data.good() && ix<numObservations)
+      {
+       getline (data,line); // this fills the string 'line' with the next line of data
+       // now we fill up the vectors of      
+       convertSplit(line,outcomes[ix],covariates[ix]);
+       ix++;
+      } // end while loop
+      data.close();
+  } // end if statement
+  else{
+   cout << "ERROR: could not open file: " << filename << ". Stop." << endl;
+   exit(EXIT_FAILURE);
   }
-  
-  //firstObs_outcome = get
-  //firstObs_covariates = 
 } // end constructor definition
 
 Logit::~Logit()
@@ -42,6 +47,15 @@ void Logit::printAttributes()
 {
   cout << "number of observations: " << (*this).numObservations << endl;
   cout << "number of covariates: " << (*this).numCovariates << endl;
+  cout << "***" << endl;
+  cout << "First 5 observations" << endl;
+  for(int ix = 0; ix < 5; ++ix){
+    cout << "---" << endl;
+    cout << "y[" << ix << "]" << " = " << outcomes[ix] << endl;
+    cout << "x[" << ix << "]" << " = " << covariates[ix] << endl;
+    cout << "x'x[" << ix << "]" << " = " << endl;
+    cout << covariates[ix].transpose()*covariates[ix] << endl;
+  } // end for loop
 
 } // end of printAttributes
 
@@ -94,17 +108,20 @@ int Logit::getNumObservations(char* filename)
   return lines;   
 } // end getNumObservations
 
-void Logit::convertSplit(string observationString) //int& y, covariateVector4d_t& x,
+void Logit::convertSplit(string observationString, int& response, covariateVector4d_t& regressors)
 {
   vector<string> splitStringList; 
   split(splitStringList, observationString, is_any_of(" ,")); // tokenize s
-  vector<double> tmpDoubleVector;
-  tmpDoubleVector.reserve(splitStringList.size());
-
-    for(vector<string>::const_iterator p = splitStringList.begin(); p < splitStringList.end(); ++p){
-       // cout << convertStringToDouble(*p)+1 << endl;
-        tmpDoubleVector.push_back(convertStringToDouble(*p));
-    } // end for
+  response = getOutcomeFromString(splitStringList.front());
+  // discard first element = LHS variable
+  // remaining elements are covariates
+  splitStringList.erase(splitStringList.begin());
+  
+  double myTmpArray[splitStringList.size()];
+  for(int ix = 0; ix<splitStringList.size(); ++ix){
+    myTmpArray[ix] = convertStringToDouble(splitStringList[ix]); 
+  }
+  regressors = Eigen::Map<covariateVector4d_t>(myTmpArray);
 } // end convertSplit
 
 // private method to convert string --> double
@@ -116,5 +133,19 @@ double Logit::convertStringToDouble(const string s){
       return -999; 
     }
 } // end of convertStringToDouble
+
+// private method to convert string --> int
+int Logit::getOutcomeFromString(const string s)
+{
+  int y;
+  try{
+      return boost::lexical_cast<int>(s);
+   }
+  catch(bad_lexical_cast &){
+      return -999; 
+  }
+
+  return y;
+} // end of getOutcomeFromString
 
 
