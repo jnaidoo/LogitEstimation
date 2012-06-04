@@ -53,6 +53,7 @@ class Logit
     Logit(char* filename);  //ctor
     ~Logit(); // dtor
     void printAttributes(); // prints out numObservations, properties of first 5 obs
+    double calcObjective(const Number)
 
   private:
     //** member functions
@@ -65,7 +66,7 @@ class Logit
     //** member data
     int numObservations;
     //int numCovariates; --> redundant because I don't know how to pass a variable-dim argument to likelihood yet
-    vector<int> outcomes;
+    vector<outcome_t> outcomes;
     vector<covariateVector4d_t> covariates;
      
   }; // end of Logit class definition

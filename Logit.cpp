@@ -12,8 +12,8 @@ using namespace boost;
 Logit::Logit(char* filename) // have to pass character array with filename to instantiate Logit
 {
   numObservations = getNumObservations(filename);
+
   // initialize data members to empty
-  
   // preallocate size of lists
   covariates.reserve(numObservations);
   outcomes.reserve(numObservations);
@@ -108,7 +108,7 @@ int Logit::getNumObservations(char* filename)
   return lines;   
 } // end getNumObservations
 
-void Logit::convertSplit(string observationString, int& response, covariateVector4d_t& regressors)
+void Logit::convertSplit(string observationString, outcome_t& response, covariateVector4d_t& regressors)
 {
   vector<string> splitStringList; 
   split(splitStringList, observationString, is_any_of(" ,")); // tokenize s
