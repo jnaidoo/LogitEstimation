@@ -14,6 +14,11 @@ int main(int argc, char* argv[]){
 
   Logit myLogit(theData);
   //myLogit.printAttributes();
+  coefficientVector4d_t testBeta;
+  testBeta << 0,0,0,0;
+  cout << "at beta = " << testBeta << "likelihood is " << myLogit.calcObjective(testBeta) << endl;
+  cout << "at beta = " << testBeta << "score is " << myLogit.calcScore(testBeta) << endl;
+  cout << "at beta = " << testBeta << "Hessian is " << myLogit.calcHessian(testBeta) << endl;
 
   return 0;
 }

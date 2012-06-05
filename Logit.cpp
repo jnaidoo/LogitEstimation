@@ -9,7 +9,7 @@ using namespace boost;
 // public member functions
 //------------------------
 
-Logit::Logit(char* filename) // have to pass character array with filename to instantiate Logit
+Logit::Logit(const char* filename) // have to pass character array with filename to instantiate Logit
 {
   numObservations = getNumObservations(filename);
 
@@ -46,7 +46,7 @@ Logit::~Logit()
 void Logit::printAttributes()
 {
   cout << "number of observations: " << (*this).numObservations << endl;
-  cout << "number of covariates: " << (*this).numCovariates << endl;
+  
   cout << "***" << endl;
   cout << "First 5 observations" << endl;
   for(int ix = 0; ix < 5; ++ix){
@@ -59,17 +59,86 @@ void Logit::printAttributes()
 
 } // end of printAttributes
 
-void Logit::printNumObs()
+double Logit::calcObjective(const coefficientVector4d_t& beta)
 {
-  cout << "Number of observations for this Logit = " << (*this).numObservations << endl;   
-}
+//for_each (myvector.begin(), myvector.end(), myfunction);
+  double tmpSum = 0;
+  for(int ix = 0; ix<numObservations; ++ix){
+    // use if statement to avoid multiplications
+    if(outcomes[ix] == 1){
+      tmpSum += logLogitCDF(getIndex(beta,covariates[ix]));
+    }
+    else{
+      // recall, log(1-G(a)) = log(G(-a))
+      tmpSum += logLogitCDF(-getIndex(beta,covariates[ix]));
+    }
+  } // end for
+  return tmpSum;
+} // end calcObjective
+
+scoreVector4d_t Logit::calcScore(const coefficientVector4d_t& beta)
+{
+  scoreVector4d_t tmpSum;
+  tmpSum.setZero(); // initialize to zero
+
+  for(int ix = 0; ix<numObservations; ++ix){
+      tmpSum += (outcomes[ix]-exp(logLogitCDF(getIndex(beta,covariates[ix]))))*covariates[ix];
+    } // end for 
+  return tmpSum;
+} // end calcScore
+
+
+
+SquareMatrix4d_t Logit::calcHessian(const coefficientVector4d_t& beta)
+{
+  SquareMatrix4d_t tmpSum;
+  tmpSum.setZero(); // initialize to zero
+
+  for(int ix = 0; ix<numObservations; ++ix){
+      tmpSum += exp(logHessianWeight(getIndex(beta,covariates[ix])))*(covariates[ix].transpose()*covariates[ix]);
+  } // end for 
+  return tmpSum;
+
+} // end calcHessian
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 //------------------------
 // private member functions
 //------------------------
 
-int Logit::getNumObservations(char* filename)
+double Logit::getIndex(const coefficientVector4d_t& beta, const covariateVector4d_t& x)
+{
+  return x*beta.transpose();
+}
+
+
+
+double Logit::logLogitCDF(double index) // pass by value; worry about temporary values changing
+{
+  // returns log of Logit CDF
+  return -log(1+exp(-index));
+}//end logitCDF
+
+double Logit::logHessianWeight(double index)
+{
+  // returns log of G()*[1-G()]
+  return -index + 2*logLogitCDF(index);
+} // end logHessianWeight
+
+
+int Logit::getNumObservations(const char* filename)
 {
   ifstream in;
   in.open(filename, ios::in);
@@ -81,8 +150,7 @@ int Logit::getNumObservations(char* filename)
   //int numObs = 0;
   int chars = 0;
   int lines = 0;
-
-
+  // initialize to 
   char cur = '\0';
   char last = '\0';
    
@@ -108,11 +176,14 @@ int Logit::getNumObservations(char* filename)
   return lines;   
 } // end getNumObservations
 
-void Logit::convertSplit(string observationString, outcome_t& response, covariateVector4d_t& regressors)
+void Logit::convertSplit(const string observationString, outcome_t& response, covariateVector4d_t& regressors)
 {
   vector<string> splitStringList; 
   split(splitStringList, observationString, is_any_of(" ,")); // tokenize s
+
+  // extract LHS variable
   response = getOutcomeFromString(splitStringList.front());
+  
   // discard first element = LHS variable
   // remaining elements are covariates
   splitStringList.erase(splitStringList.begin());
@@ -144,7 +215,6 @@ int Logit::getOutcomeFromString(const string s)
   catch(bad_lexical_cast &){
       return -999; 
   }
-
   return y;
 } // end of getOutcomeFromString
 

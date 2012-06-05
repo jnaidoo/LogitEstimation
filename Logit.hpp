@@ -17,6 +17,8 @@
   */
 
 // for now, we unfortunately have to hard-code in the number of covariates (k = 4)
+// though it may be possible to change the typedefs to have size Dynamic
+// to allow for different numbers of covariates
 
 //======================================================
 // #include guards
@@ -33,14 +35,16 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
 #include <Eigen/Dense>
+#include <cmath>
 //#include <cctype>
 //#include <cstdlib>
 //======================================================
 // typedefs
-typedef Eigen::Matrix<double,1,4> covariateVector4d_t;
+typedef Eigen::Matrix<double,1,4> covariateVector4d_t; // row vector of covariates
+typedef Eigen::Matrix<double,1,4> coefficientVector4d_t; // row of coefficients
 typedef int outcome_t; 
 typedef Eigen::Matrix<double,1,4> scoreVector4d_t;
-typedef Eigen::Matrix<double,4,4> SquareMatrix4d_t;
+typedef Eigen::Matrix<double,4,4> SquareMatrix4d_t; // to be populated with analytic Hessian
 
 //======================================================
 // namespace declarations
@@ -50,18 +54,24 @@ using namespace std;
 class Logit
   {
   public:
-    Logit(char* filename);  //ctor
+    Logit(const char* filename);  //ctor
     ~Logit(); // dtor
     void printAttributes(); // prints out numObservations, properties of first 5 obs
-    double calcObjective(const Number)
+    double calcObjective(const coefficientVector4d_t& beta);
+    scoreVector4d_t calcScore(const coefficientVector4d_t& beta);
+    SquareMatrix4d_t calcHessian(const coefficientVector4d_t& beta);
 
   private:
     //** member functions
-    int getNumObservations(char*);
-    double convertStringToDouble(const string s);
-    int getOutcomeFromString(const string s);
+    double getIndex(const coefficientVector4d_t& beta, const covariateVector4d_t& x); // inner product
+  
+    double logLogitCDF(const double index); // log(G()) for likelihood and score
+    double logHessianWeight(const double index); // log(G()[1-G()]) for Hessian
+    int getNumObservations(const char* filename); // argument = data filename
     // convertSplit takes a line and enters y and x data into its arguments
-    void convertSplit(string observationString, int& response, covariateVector4d_t& regressors);
+    void convertSplit(const string observationString, int& response, covariateVector4d_t& regressors);
+    double convertStringToDouble(const string s); // simple type-recast
+    int getOutcomeFromString(const string s);
     
     //** member data
     int numObservations;
