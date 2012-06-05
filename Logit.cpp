@@ -73,7 +73,7 @@ double Logit::calcObjective(const coefficientVector4d_t& beta)
       tmpSum += logLogitCDF(-getIndex(beta,covariates[ix]));
     }
   } // end for
-  return tmpSum;
+  return -tmpSum; // minimize -likelihood
 } // end calcObjective
 
 scoreVector4d_t Logit::calcScore(const coefficientVector4d_t& beta)
@@ -84,7 +84,7 @@ scoreVector4d_t Logit::calcScore(const coefficientVector4d_t& beta)
   for(int ix = 0; ix<numObservations; ++ix){
       tmpSum += (outcomes[ix]-exp(logLogitCDF(getIndex(beta,covariates[ix]))))*covariates[ix];
     } // end for 
-  return tmpSum;
+  return -tmpSum; // minimize -likelihood
 } // end calcScore
 
 
@@ -97,7 +97,7 @@ SquareMatrix4d_t Logit::calcHessian(const coefficientVector4d_t& beta)
   for(int ix = 0; ix<numObservations; ++ix){
       tmpSum += exp(logHessianWeight(getIndex(beta,covariates[ix])))*(covariates[ix].transpose()*covariates[ix]);
   } // end for 
-  return -tmpSum; // Hessian is negative definite
+  return tmpSum; // Hessian of -L is positive definite
 
 } // end calcHessian
 

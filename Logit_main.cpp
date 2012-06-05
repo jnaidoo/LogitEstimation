@@ -17,7 +17,7 @@
   */
 
 #include "IpIpoptApplication.hpp"
-#include "Logit_NLP.hpp"
+#include "LogitNLP.hpp"
 
 #include <iostream>
 
@@ -27,7 +27,7 @@ int main(int argv, char* argc[])
 {
   // Create a new instance of your nlp
   //  (use a SmartPtr, not raw)
-  SmartPtr<TNLP> mynlp = new Logit_NLP();
+  SmartPtr<TNLP> mynlp = new LogitNLP();
 
   // Create a new instance of IpoptApplication
   //  (use a SmartPtr, not raw)
@@ -43,7 +43,7 @@ int main(int argv, char* argc[])
   app->Options()->SetStringValue("output_file", "ipopt.out");
   // The following overwrites the default name (ipopt.opt) of the
   // options file
-  // app->Options()->SetStringValue("option_file_name", "Logit_NLP.opt");
+  // app->Options()->SetStringValue("option_file_name", "LogitNLP.opt");
 
   // Intialize the IpoptApplication and process the options
   ApplicationReturnStatus status;

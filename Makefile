@@ -14,7 +14,7 @@ TGT=Logit_main
 #Logit_test
 
 #Ipopt Installation Location
-IPOPTDIR=/home/jnaidoo/Tools/Ipopt/Ipopt-3.10.2/build
+IPOPTDIR=/Users/jesse/Tools/Ipopt-3.10.2-x86_64-osx
 
 # Link line for shared libraries
 LIBS=-L$(IPOPTDIR)/lib          \
@@ -23,7 +23,7 @@ LIBS=-L$(IPOPTDIR)/lib          \
       -lcoinlapack              \
       -lcoinmetis               \
       -lcoinmumps               \
-      -rdynamic -ldl -lpthread
+      -lgfortran -ldl -lpthread
 
 # compiler
 CXX=g++-mp-4.7
@@ -32,13 +32,14 @@ CXX=g++-mp-4.7
 CPPFLAGS=-Wall -Wextra -O2 -m64 \
 -I/Users/jesse/Tools/boost-1.4.9/boost_1_49_0/ \
 -I/Users/jesse/Tools/eigen-3.0.5/eigen-eigen-6e7488e20373/ \
--I$(IPOPTDIR)/include/coin
+-DEIGEN_NO_DEBUG \
+-I$(IPOPTDIR)/include/coin 
 
 # to speed up Eigen code:
 #-DEIGEN_NO_DEBUG
 
 # debugger flags
-CPP_DEBUG_FLAGS=-g -Wall -Wextra -m64 -O0 -fno-inline \
+#CPP_DEBUG_FLAGS=-g -Wall -Wextra -m64 -O0 -fno-inline \
 -I/Users/jesse/Tools/boost-1.4.9/boost_1_49_0/ \
 -I/Users/jesse/Tools/eigen-3.0.5/eigen-eigen-6e7488e20373/ \
 -I$(IPOPTDIR)/include/coin
@@ -51,9 +52,9 @@ RM=rm
 # which need to be linked? which only compiled into object code?
 
 # list of object files
-OBJS=Logit_main.o Logit.o Logit_NLP.o
+OBJS=Logit_main.o Logit.o LogitNLP.o
 # compiled with debug symbols
-DBGS=Logit_main.d Logit.d Logit_NLP.o
+DBGS=Logit_main.d Logit.d LogitNLP.d
 
 #======================================================================
 #======================================================================
@@ -64,7 +65,7 @@ DBGS=Logit_main.d Logit.d Logit_NLP.o
 
 default : exe
 
-# exe's only dependency is Logit_test executable
+# exe's only dependency is Logit_main executable
 exe : $(TGT) 
 
 # Logit_test executable consists of Logit.o linked with Logit_main.o
@@ -72,7 +73,7 @@ exe : $(TGT)
 # note the compiler flags are for the optimized version of the code
 # see below for an explanation of the $^, $@ etc
 
-$(TGT) : $(OBJS) Logit.hpp
+$(TGT) : $(OBJS) 	
 	$(CXX) $(CPPFLAGS) $^ -o $(TGT) $(LIBS)
 
 # rule to build debugger version of the code
