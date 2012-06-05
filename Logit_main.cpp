@@ -3,12 +3,16 @@
 //
 /** VERSION HISTORY:
   * ----------------
-  * 29/5/12 first version
+  * 29/5/12 first version (skeleton only)
+  * 4/6/12 created interface with Logit class
   *
   *
   *
   *
-  *
+  * Note: Stata estimates are:
+  * logit y x*, nocon ...
+  *         x1         x2         x3         x4
+  * y1   .6151037  .54470695  1.0954129   .2425786
   *
   */
 

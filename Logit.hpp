@@ -8,7 +8,7 @@
 /** VERSION HISTORY:
   * ----------------
   * 29/5/12 first version
-  *
+  * 4/6/12 hook interface into Ipopt
   *
   *
   *

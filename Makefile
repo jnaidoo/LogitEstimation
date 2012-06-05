@@ -1,11 +1,29 @@
-# Makefile to build Logit_test application
-# this version: 5/30/2012
+# Makefile to build Logit_main application
+# to interface with Ipopt
+# Jesse Naidoo (jnaidoo@uchicago.edu)
+# this version: 6/4/2012
+
+#======================================================================
+#======================================================================
 
 #-------------------#
 # set useful macros #
 #-------------------#
 
-TGT=Logit_test
+TGT=Logit_main  
+#Logit_test
+
+#Ipopt Installation Location
+IPOPTDIR=/home/jnaidoo/Tools/Ipopt/Ipopt-3.10.2/build
+
+# Link line for shared libraries
+LIBS=-L$(IPOPTDIR)/lib          \
+      -lipopt                   \
+      -lcoinblas                \
+      -lcoinlapack              \
+      -lcoinmetis               \
+      -lcoinmumps               \
+      -rdynamic -ldl -lpthread
 
 # compiler
 CXX=g++-mp-4.7
@@ -13,12 +31,17 @@ CXX=g++-mp-4.7
 # compiler flags
 CPPFLAGS=-Wall -Wextra -O2 -m64 \
 -I/Users/jesse/Tools/boost-1.4.9/boost_1_49_0/ \
--I/Users/jesse/Tools/eigen-3.0.5/eigen-eigen-6e7488e20373/
+-I/Users/jesse/Tools/eigen-3.0.5/eigen-eigen-6e7488e20373/ \
+-I$(IPOPTDIR)/include/coin
+
+# to speed up Eigen code:
+#-DEIGEN_NO_DEBUG
 
 # debugger flags
 CPP_DEBUG_FLAGS=-g -Wall -Wextra -m64 -O0 -fno-inline \
 -I/Users/jesse/Tools/boost-1.4.9/boost_1_49_0/ \
--I/Users/jesse/Tools/eigen-3.0.5/eigen-eigen-6e7488e20373/
+-I/Users/jesse/Tools/eigen-3.0.5/eigen-eigen-6e7488e20373/ \
+-I$(IPOPTDIR)/include/coin
 
 # system commands
 RM=rm
@@ -28,9 +51,12 @@ RM=rm
 # which need to be linked? which only compiled into object code?
 
 # list of object files
-OBJS=Logit_test.o Logit.o
+OBJS=Logit_main.o Logit.o Logit_NLP.o
 # compiled with debug symbols
-DBGS=Logit_test.d Logit.d
+DBGS=Logit_main.d Logit.d Logit_NLP.o
+
+#======================================================================
+#======================================================================
 
 #---------#
 # targets #
@@ -41,16 +67,17 @@ default : exe
 # exe's only dependency is Logit_test executable
 exe : $(TGT) 
 
-# Logit_test executable consists of Logit.o linked with Logit_test.o
+# Logit_test executable consists of Logit.o linked with Logit_main.o
 # hence its dependencies are the $(OBJS)
 # note the compiler flags are for the optimized version of the code
 # see below for an explanation of the $^, $@ etc
+
 $(TGT) : $(OBJS) Logit.hpp
-	$(CXX) $(CPPFLAGS) $^ -o $@
+	$(CXX) $(CPPFLAGS) $^ -o $(TGT) $(LIBS)
 
 # rule to build debugger version of the code
 dbg : $(DBGS)
-	$(CXX) $(CPP_DEBUG_FLAGS) $^ -o $(TGT).dbg
+	$(CXX) $(CPP_DEBUG_FLAGS) $^ -o $(TGT).dbg $(LIBS)
 
 # remove all
 clean :
@@ -61,6 +88,9 @@ clean :
 # $@ = file name of the target
 # $^ = all dependencies, duplicates removed
 # $? = all dependencies newer than the target
+
+#======================================================================
+#======================================================================
 
 #-------------------------------------------#
 # pattern rules to compile individual files #

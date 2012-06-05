@@ -97,7 +97,7 @@ SquareMatrix4d_t Logit::calcHessian(const coefficientVector4d_t& beta)
   for(int ix = 0; ix<numObservations; ++ix){
       tmpSum += exp(logHessianWeight(getIndex(beta,covariates[ix])))*(covariates[ix].transpose()*covariates[ix]);
   } // end for 
-  return tmpSum;
+  return -tmpSum; // Hessian is negative definite
 
 } // end calcHessian
 

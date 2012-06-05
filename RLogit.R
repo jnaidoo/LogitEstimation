@@ -1,7 +1,7 @@
 rm(list=ls()) # clear workspace
 setwd("~/Documents/UChicago (Work)/2011-12/C++ Course/Problem Sets/Homework 3/hw3Naidoo")
 data <-read.table("LogitData.txt",header=FALSE)
-#colnames(data)<-c("y","x1","x2","x3","x4")
+colnames(data)<-c("y","x1","x2","x3","x4")
 y = as.vector(data[,1])
 X = as.matrix(data[,2:5])
 G <- function(index){
